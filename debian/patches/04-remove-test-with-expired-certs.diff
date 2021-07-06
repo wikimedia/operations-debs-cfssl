@@ -1,0 +1,34 @@
+Subject: Remove test which use expired certificates
+Author: John Bond <jbond@wikimedia.org>
+--- a/signer/remote/remote_test.go
++++ b/signer/remote/remote_test.go
+@@ -90,14 +90,6 @@
+ 	verifyRemoteInfo(t, remoteConfig)
+ }
+ 
+-func TestRemoteTLSInfo(t *testing.T) {
+-	remoteTLSInfo(t, false)
+-}
+-
+-func TestRemoteMutualTLSInfo(t *testing.T) {
+-	remoteTLSInfo(t, true)
+-}
+-
+ func remoteTLSInfo(t *testing.T, isMutual bool) {
+ 	certPool, err := helpers.LoadPEMCertPool(testCaFile)
+ 	if err != nil {
+@@ -150,14 +142,6 @@
+ 	verifyRemoteSign(t, remoteConfig)
+ }
+ 
+-func TestRemoteTLSSign(t *testing.T) {
+-	remoteTLSSign(t, false)
+-}
+-
+-func TestRemoteMutualTLSSign(t *testing.T) {
+-	remoteTLSSign(t, true)
+-}
+-
+ func remoteTLSSign(t *testing.T, isMutual bool) {
+ 	certPool, err := helpers.LoadPEMCertPool(testCaFile)
+ 	if err != nil {

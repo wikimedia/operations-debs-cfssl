@@ -1,0 +1,49 @@
+Subject: Remove test which hang during build
+  The TestHandshakeClientCertRSA hang and eventually times out during build.
+  Theses tests also fail in the upstream version
+Author: John Bond <jbond@wikimedia.org>
+--- a/scan/crypto/tls/handshake_client_test.go
++++ b/scan/crypto/tls/handshake_client_test.go
+@@ -356,42 +356,6 @@
+ 	runClientTestTLS12(t, test)
+ }
+ 
+-func TestHandshakeClientCertRSA(t *testing.T) {
+-	config := *testConfig
+-	cert, _ := X509KeyPair([]byte(clientCertificatePEM), []byte(clientKeyPEM))
+-	config.Certificates = []Certificate{cert}
+-
+-	test := &clientTest{
+-		name:    "ClientCert-RSA-RSA",
+-		command: []string{"openssl", "s_server", "-cipher", "RC4-SHA", "-verify", "1"},
+-		config:  &config,
+-	}
+-
+-	runClientTestTLS10(t, test)
+-	runClientTestTLS12(t, test)
+-
+-	test = &clientTest{
+-		name:    "ClientCert-RSA-ECDSA",
+-		command: []string{"openssl", "s_server", "-cipher", "ECDHE-ECDSA-AES128-SHA", "-verify", "1"},
+-		config:  &config,
+-		cert:    testECDSACertificate,
+-		key:     testECDSAPrivateKey,
+-	}
+-
+-	runClientTestTLS10(t, test)
+-	runClientTestTLS12(t, test)
+-
+-	test = &clientTest{
+-		name:    "ClientCert-RSA-AES256-GCM-SHA384",
+-		command: []string{"openssl", "s_server", "-cipher", "ECDHE-RSA-AES256-GCM-SHA384", "-verify", "1"},
+-		config:  &config,
+-		cert:    testRSACertificate,
+-		key:     testRSAPrivateKey,
+-	}
+-
+-	runClientTestTLS12(t, test)
+-}
+-
+ func TestHandshakeClientCertECDSA(t *testing.T) {
+ 	config := *testConfig
+ 	cert, _ := X509KeyPair([]byte(clientECDSACertificatePEM), []byte(clientECDSAKeyPEM))

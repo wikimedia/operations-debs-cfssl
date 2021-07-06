@@ -1,0 +1,14 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: cfssl
+Source: https://github.com/cloudflare/cfssl
+Files-Excluded:
+  vendor
+
+Files: *
+Copyright: 2014 Cloudflare
+License: BSD-2-clause
+
+Files: debian/*
+Copyright: 2021 John Bond <jbond@wikimedia.org>
+License: BSD-2-clause
+Comment: Debian packaging is licensed under the same terms as upstream
