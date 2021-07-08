@@ -1,0 +1,71 @@
+diff --git a/certdb/certdb.go b/certdb/certdb.go
+index dc8c856c3..75a5b1f85 100644
+--- a/certdb/certdb.go
++++ b/certdb/certdb.go
+@@ -31,6 +31,7 @@ type Accessor interface {
+ 	InsertCertificate(cr CertificateRecord) error
+ 	GetCertificate(serial, aki string) ([]CertificateRecord, error)
+ 	GetUnexpiredCertificates() ([]CertificateRecord, error)
++	GetUnexpiredCertificatesByAKI( aki string) ([]CertificateRecord, error)
+ 	GetRevokedAndUnexpiredCertificates() ([]CertificateRecord, error)
+ 	GetRevokedAndUnexpiredCertificatesByLabel(label string) ([]CertificateRecord, error)
+ 	RevokeCertificate(serial, aki string, reasonCode int) error
+diff --git a/certdb/sql/database_accessor.go b/certdb/sql/database_accessor.go
+index c23750749..c9d010815 100644
+--- a/certdb/sql/database_accessor.go
++++ b/certdb/sql/database_accessor.go
+@@ -30,6 +30,10 @@ SELECT %s FROM certificates
+ SELECT %s FROM certificates
+ 	WHERE CURRENT_TIMESTAMP < expiry;`
+ 
++	selectAllUnexpiredByAKISQL = `
++SELECT %s FROM certificates
++	WHERE (CURRENT_TIMESTAMP < expiry AND authority_key_identifier = ?);`
++
+ 	selectAllRevokedAndUnexpiredWithLabelSQL = `
+ SELECT %s FROM certificates
+ 	WHERE CURRENT_TIMESTAMP < expiry AND status='revoked' AND ca_label= ?;`
+@@ -156,6 +160,21 @@ func (d *Accessor) GetUnexpiredCertificates() (crs []certdb.CertificateRecord, e
+ 	return crs, nil
+ }
+ 
++// GetUnexpiredCertificates gets all unexpired certificate from db.
++func (d *Accessor) GetUnexpiredCertificatesByAKI(aki string) (crs []certdb.CertificateRecord, err error) {
++	err = d.checkDB()
++	if err != nil {
++		return nil, err
++	}
++
++	err = d.db.Select(&crs, fmt.Sprintf(d.db.Rebind(selectAllUnexpiredByAKISQL), sqlstruct.Columns(certdb.CertificateRecord{})), aki)
++	if err != nil {
++		return nil, wrapSQLError(err)
++	}
++
++	return crs, nil
++}
++
+ // GetRevokedAndUnexpiredCertificates gets all revoked and unexpired certificate from db (for CRLs).
+ func (d *Accessor) GetRevokedAndUnexpiredCertificates() (crs []certdb.CertificateRecord, err error) {
+ 	err = d.checkDB()
+diff --git a/cli/ocsprefresh/ocsprefresh.go b/cli/ocsprefresh/ocsprefresh.go
+index 2f2fdc549..6faa9b75d 100644
+--- a/cli/ocsprefresh/ocsprefresh.go
++++ b/cli/ocsprefresh/ocsprefresh.go
+@@ -56,8 +56,16 @@ func ocsprefreshMain(args []string, c cli.Config) error {
+ 		return err
+ 	}
+ 
++	ca, err := helpers.ReadBytes(c.CAFile)
++	if err != nil {
++		return err
++	}
++	CACert, err := helpers.ParseCertificatePEM(ca)
++	if err != nil {
++		return err
++	}
+ 	dbAccessor := sql.NewAccessor(db)
+-	certs, err := dbAccessor.GetUnexpiredCertificates()
++	certs, err := dbAccessor.GetUnexpiredCertificatesByAKI(hex.EncodeToString(CACert.SubjectKeyId))
+ 	if err != nil {
+ 		return err
+ 	}

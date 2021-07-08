@@ -1,3 +1,10 @@
+golang-github-cloudflare-cfssl (1.6.0-2) UNRELEASED; urgency=medium
+
+  * Add support for multi AKI in ocsprefresh
+    https://github.com/cloudflare/cfssl/pull/956
+
+ -- John Bond <jbond@wikimedia.org>  Thu, 08 Jul 2021 11:42:38 +0200
+
 golang-github-cloudflare-cfssl (1.6.0-1) UNRELEASED; urgency=medium
 
   * Upgrade release to cfssl 1.6.0
