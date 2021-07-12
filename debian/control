@@ -47,7 +47,6 @@ Depends: debhelper-compat (= 13),
          golang-pq-dev,
          golang-prometheus-client-dev,
          ${misc:Depends},
-         ${shlibs:Depends}
 Description: CloudFlare's PKI and TLS toolkit
  CFSSL is CloudFlare's PKI/TLS swiss army knife. It is both a command
  line tool and an HTTP API server for signing, verifying, and bundling
