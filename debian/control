@@ -59,8 +59,7 @@ Description: CloudFlare's PKI and TLS toolkit
 Package: golang-cfssl
 Architecture: any
 Built-Using: ${misc:Built-Using}
-Depends: ${shlibs:Depends},
-         ${misc:Depends}
+Depends: ${misc:Depends}
 Description: CloudFlare's PKI and TLS toolkit
  CFSSL is CloudFlare's PKI/TLS swiss army knife. It is both a command
  line tool and an HTTP API server for signing, verifying, and bundling
